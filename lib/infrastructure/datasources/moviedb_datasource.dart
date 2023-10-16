@@ -3,6 +3,7 @@ import 'package:proyecto_cine/config/constants/environment.dart';
 import 'package:proyecto_cine/domain/datasources/movies_datasource.dart';
 import 'package:proyecto_cine/domain/entities/movie.dart';
 import 'package:proyecto_cine/infrastructure/mappers/movie_mappers.dart';
+import 'package:proyecto_cine/infrastructure/models/moviedb/movie_details.dart';
 import 'package:proyecto_cine/infrastructure/models/moviedb/moviedb_response.dart';
 
 class MoviedbDatasource extends MoviesDatasource{
@@ -70,6 +71,17 @@ class MoviedbDatasource extends MoviesDatasource{
     });
     //devuelve un json con la estructura de la clase movies
     return _jsonToMovies(response.data);
+  }
+
+  @override
+  Future<Movie> getMovieById(String id) async{
+    final response = await dio.get('/movie/$id');
+    //con esto atrapamos casi cualquier excepcion
+    if(response.statusCode != 200) throw Exception('Movie with id: $id not found');
+
+    final movieDetails = MovieDetails.fromJson(response.data);
+    final Movie movie = MovieMapper.movieDetailsToEntity(movieDetails);
+    return movie;
   }
 
   
